@@ -30,6 +30,7 @@ if ($hasChanges === true)
 $feed = new SimpleXMLElementEx('<rss version="2.0"></rss>');
 $feed->addChild('channel');
 $feed->channel->addChild('title', 'sitefeed for ' . $url);
+$feed->channel->addChild('link', $url);
 $imageItem = $feed->channel->addChild('image');
 $imageItem->addChild('url', base_url('img/font-awesome-rss-black.png'));
 
