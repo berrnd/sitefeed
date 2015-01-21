@@ -19,10 +19,6 @@
             <p>!!! Error: cache is not writable</p>
         <?php endif; ?>
 
-        <?php if (!extension_loaded('xdiff')) : ?>
-            <p>!!! Error: xdiff extension is not installed/loaded</p>
-        <?php endif; ?>
-
         <p>Bookmarklet: <a href="javascript:location.href='<?php echo base_url('rss.php'); ?>?url='+encodeURIComponent(location.href);">sitefeed</a></p>
 
     </body>

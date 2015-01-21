@@ -7,6 +7,7 @@ if (empty($_GET['url'])) {
 
 require_once 'SimpleXMLElementEx.php';
 require_once 'functions.php';
+require_once 'packages/paulgb/simplediff.php';
 
 $url = urldecode($_GET['url']);
 $cacheFileNameId = md5($url);
@@ -20,12 +21,19 @@ if ($firstTime === true) {
     $hasChanges = true;
 } else {
     $oldPage = file_get_contents($siteCacheFilePath);
-    $text = xdiff_string_diff($oldPage, $newPage, 10);
-    $hasChanges = !empty($text);
+    $text = htmlDiff($oldPage, $newPage);
+
+    if ($oldPage !== $newPage)
+        $hasChanges = true;
 }
 
-if ($hasChanges === true)
+if ($hasChanges === true) {
     file_put_contents($siteCacheFilePath, $newPage);
+
+    $itemCacheFilePath = "cache/$cacheFileNameId.rssitem-" . base64_encode(date(DATE_RSS)) . '.txt';
+    $text .= '<style>.sitefeed-ins { background-color: #aaffaa; } .sitefeed-del { background-color: #ff8888; text-decoration: line-through; }</style>';
+    file_put_contents($itemCacheFilePath, $text);
+}
 
 $feed = new SimpleXMLElementEx('<rss version="2.0"></rss>');
 $feed->addChild('channel');
@@ -34,7 +42,7 @@ $feed->channel->addChild('link', $url);
 $imageItem = $feed->channel->addChild('image');
 $imageItem->addChild('url', base_url('img/font-awesome-rss-black.png'));
 
-//Old RSS items
+//RSS items
 foreach (glob("cache/$cacheFileNameId.rssitem*.txt") as $f) {
     $itemText = file_get_contents($f);
     $itemDate = base64_decode(get_string_between($f, 'rssitem-', '.txt'));
@@ -46,23 +54,6 @@ foreach (glob("cache/$cacheFileNameId.rssitem*.txt") as $f) {
     $descriptionChild->addCData($itemText);
     $item->addChild('pubDate', $itemDate);
     $item->addChild('author', 'sitefeed');
-}
-
-//New RSS item
-if ($hasChanges === true) {
-    $date = date(DATE_RSS);
-    $text = htmlentities($text);
-
-    $item = $feed->channel->addChild('item');
-    $item->addChild('title', "sitefeed: Change detected for $url");
-    $item->addChild('link', $url);
-    $descriptionChild = $item->addChild('description');
-    $descriptionChild->addCData($text);
-    $item->addChild('pubDate', $date);
-    $item->addChild('author', 'sitefeed');
-
-    $itemCacheFilePath = "cache/$cacheFileNameId.rssitem-" . base64_encode($date) . '.txt';
-    file_put_contents($itemCacheFilePath, $text);
 }
 
 header('Content-Type: application/rss+xml');
