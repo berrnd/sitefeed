@@ -3,8 +3,6 @@ sitefeed
 
 A PHP application that monitors websites for changes and delivers them as a unified diff via RSS
 
-> sitefeed is also available as a free public service: [https://sitefeed.de](http://sitefeed.de)
-
 ## Requirements
 Any webserver with PHP
 
