@@ -1,3 +1,8 @@
+-----
+> [!CAUTION]
+> This is archived and no longer maintained.
+-----
+
 sitefeed
 ========
 
